@@ -33,15 +33,30 @@ export default function AddTaskScreen({navigation}) {
       return;
     }
     setSaving(true);
-    try {
-      let reminderAt = null;
-      let notificationId = null;
+    let reminderAt = null;
+    let notificationId = null;
 
-      if (reminder > 0) {
-        reminderAt = Date.now() + reminder * 1000;
+    // Si la notificación falla, la tarea se guarda igual (sin recordatorio).
+    if (reminder > 0) {
+      try {
         notificationId = await scheduleTaskReminder(title.trim(), reminder);
+        if (notificationId) {
+          reminderAt = Date.now() + reminder * 1000;
+        } else {
+          Alert.alert(
+            'Sin permiso',
+            'La tarea se guardó, pero no hay permiso para mostrar notificaciones.',
+          );
+        }
+      } catch (e) {
+        Alert.alert(
+          'No se pudo programar el aviso',
+          `La tarea se guardó sin recordatorio.\n\nDetalle: ${e?.message ?? e}`,
+        );
       }
+    }
 
+    try {
       const newTask = {
         id: Date.now().toString(),
         title: title.trim(),
@@ -54,7 +69,10 @@ export default function AddTaskScreen({navigation}) {
       await saveTasks(user, [newTask, ...tasks]);
       navigation.goBack();
     } catch (e) {
-      Alert.alert('Error', 'No se pudo guardar la tarea.');
+      Alert.alert(
+        'Error',
+        `No se pudo guardar la tarea.\n\nDetalle: ${e?.message ?? e}`,
+      );
       setSaving(false);
     }
   };
