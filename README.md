@@ -9,7 +9,7 @@ Trabajo práctico individual de React Native – Istea.
 
 ## 🎬 Video demo
 
-▶️ **[Ver demo en YouTube](https://youtu.be/REEMPLAZAR_CON_TU_LINK)** (1–2 minutos)
+▶️ **[Ver demo en YouTube](https://youtube.com/shorts/OYGY6Do-X_E)** (1–2 minutos)
 
 ## Funcionalidades
 
@@ -44,7 +44,7 @@ Trabajo práctico individual de React Native – Istea.
 Requisitos: Node.js 20 o superior y la app **Expo Go** en el celular (Play Store / App Store).
 
 ```bash
-git clone https://github.com/TU_USUARIO/TaskApp.git
+git clone https://github.com/bruno-istea/TaskApp.git
 cd TaskApp
 npm install
 npx expo start
