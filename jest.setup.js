@@ -6,7 +6,7 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 );
 
 // Mock de expo-notifications: en los tests no hay un celular real para notificar
-jest.mock('expo-notifications', () => ({
+jest.mock('./src/services/localNotificationsApi', () => ({
   setNotificationHandler: jest.fn(),
   setNotificationChannelAsync: jest.fn(() => Promise.resolve()),
   requestPermissionsAsync: jest.fn(() => Promise.resolve({status: 'granted'})),

@@ -1,4 +1,4 @@
-import * as Notifications from 'expo-notifications';
+import * as Notifications from '../src/services/localNotificationsApi';
 import {
   cancelReminder,
   scheduleTaskReminder,
