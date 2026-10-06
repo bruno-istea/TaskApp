@@ -13,14 +13,28 @@ Notifications.setNotificationHandler({
   }),
 });
 
-/** Pide permiso (Android 13+ / iOS) y crea el canal de notificaciones. */
-export async function setupNotifications() {
-  if (Platform.OS === 'android') {
+/**
+ * Crea el canal "Recordatorios de tareas" en Android.
+ * En Expo Go no se pueden crear canales propios: en ese caso devuelve false
+ * y la notificación usa el canal por defecto.
+ */
+async function createChannel() {
+  if (Platform.OS !== 'android') {
+    return false;
+  }
+  try {
     await Notifications.setNotificationChannelAsync(CHANNEL_ID, {
       name: 'Recordatorios de tareas',
       importance: Notifications.AndroidImportance.HIGH,
     });
+    return true;
+  } catch (e) {
+    return false;
   }
+}
+
+/** Pide permiso para mostrar notificaciones (Android 13+ / iOS). */
+export async function requestPermission() {
   const {status} = await Notifications.requestPermissionsAsync();
   return status === 'granted';
 }
@@ -32,10 +46,11 @@ export async function setupNotifications() {
  * @returns id de la notificación (para poder cancelarla), o null si no hay permiso
  */
 export async function scheduleTaskReminder(title, seconds) {
-  const granted = await setupNotifications();
+  const granted = await requestPermission();
   if (!granted) {
     return null;
   }
+  const hasChannel = await createChannel();
   return Notifications.scheduleNotificationAsync({
     content: {
       title: '⏰ Tarea pendiente',
@@ -45,7 +60,7 @@ export async function scheduleTaskReminder(title, seconds) {
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
       seconds,
-      channelId: CHANNEL_ID,
+      ...(hasChannel ? {channelId: CHANNEL_ID} : {}),
     },
   });
 }

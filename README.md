@@ -22,7 +22,7 @@ Trabajo práctico individual de React Native – Istea.
 | **Persistencia (AsyncStorage)** | Se guardan los usuarios, la sesión activa y las tareas de **cada usuario por separado**. Los datos siguen al cerrar y volver a abrir la app. |
 | **Crear elementos** | Pantalla **Nueva tarea** con título y recordatorio. Además (opcional): marcar como hecha ✓, **eliminar** con confirmación y contador de pendientes. |
 | **Notificación local** | Con **expo-notifications** (sin Firebase). Al crear una tarea se elige el aviso (**5 seg** por defecto, 10 seg, 1 min, 5 min o 30 min) y llega la notificación “⏰ Tarea pendiente”. Si se borra la tarea, el aviso se cancela. |
-| **Tests** | Jest (`jest-expo`) + React Native Testing Library: **23 tests en 6 archivos**, se corren todos con `npm test`. |
+| **Tests** | Jest (`jest-expo`) + React Native Testing Library: **24 tests en 6 archivos**, se corren todos con `npm test`. |
 
 ### Tests (`__tests__/`)
 

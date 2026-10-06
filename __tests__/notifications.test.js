@@ -27,6 +27,17 @@ describe('Notificaciones locales (expo-notifications)', () => {
     expect(Notifications.scheduleNotificationAsync).not.toHaveBeenCalled();
   });
 
+  it('si no se puede crear el canal (Expo Go), igual programa la notificación', async () => {
+    Notifications.scheduleNotificationAsync.mockClear();
+    Notifications.setNotificationChannelAsync.mockRejectedValueOnce(
+      new Error('NotificationsChannelsProvider null'),
+    );
+    expect(await scheduleTaskReminder('Estudiar', 5)).toBe('notif-id');
+    const {trigger} = Notifications.scheduleNotificationAsync.mock.calls[0][0];
+    expect(trigger.seconds).toBe(5);
+    expect(trigger.channelId).toBeUndefined();
+  });
+
   it('cancela la notificación al borrar la tarea', async () => {
     await cancelReminder('notif-id');
     expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith(
