@@ -15,3 +15,8 @@ jest.mock('expo-notifications', () => ({
   AndroidImportance: {HIGH: 4},
   SchedulableTriggerInputTypes: {TIME_INTERVAL: 'timeInterval'},
 }));
+
+// Mock de safe-area-context (en los tests no hay pantalla real con bordes)
+jest.mock('react-native-safe-area-context', () =>
+  require('react-native-safe-area-context/jest/mock').default,
+);

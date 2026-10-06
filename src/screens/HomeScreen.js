@@ -1,11 +1,12 @@
 import React, {useCallback, useLayoutEffect, useState} from 'react';
-import {Alert, FlatList, StyleSheet, Text, View} from 'react-native';
+import {Alert, FlatList, StyleSheet, Text} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import CustomButton from '../components/CustomButton';
 import TaskItem from '../components/TaskItem';
 import {useAuth} from '../context/AuthContext';
 import {cancelReminder} from '../services/notifications';
 import {getTasks, saveTasks} from '../storage/storage';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../theme';
 import {countPending} from '../utils/validation';
 
@@ -61,7 +62,7 @@ export default function HomeScreen({navigation}) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <Text style={styles.greeting}>Hola, {user} 👋</Text>
       <Text style={styles.summary}>
         {tasks.length === 0
@@ -91,7 +92,7 @@ export default function HomeScreen({navigation}) {
         title="+ Nueva tarea"
         onPress={() => navigation.navigate('AddTask')}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

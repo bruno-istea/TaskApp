@@ -4,6 +4,7 @@ import CustomButton from '../components/CustomButton';
 import FormInput from '../components/FormInput';
 import {useAuth} from '../context/AuthContext';
 import {checkCredentials} from '../storage/storage';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../theme';
 import {validateLogin} from '../utils/validation';
 
@@ -29,7 +30,7 @@ export default function LoginScreen({navigation}) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <Text style={styles.logo}>✅</Text>
       <Text style={styles.title}>Gestor de Tareas</Text>
       <Text style={styles.subtitle}>Iniciá sesión para continuar</Text>
@@ -58,7 +59,7 @@ export default function LoginScreen({navigation}) {
           onPress={() => navigation.navigate('Register')}
         />
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {Alert, StyleSheet, Text, View} from 'react-native';
+import {Alert, StyleSheet, Text} from 'react-native';
 import CustomButton from '../components/CustomButton';
 import FormInput from '../components/FormInput';
 import {registerUser} from '../storage/storage';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../theme';
 import {validateRegister} from '../utils/validation';
 
@@ -29,7 +30,7 @@ export default function RegisterScreen({navigation}) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <Text style={styles.title}>Crear cuenta</Text>
 
       <FormInput
@@ -61,7 +62,7 @@ export default function RegisterScreen({navigation}) {
         variant="outline"
         onPress={() => navigation.goBack()}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

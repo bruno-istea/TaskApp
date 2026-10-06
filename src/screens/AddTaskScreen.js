@@ -5,6 +5,7 @@ import FormInput from '../components/FormInput';
 import {useAuth} from '../context/AuthContext';
 import {scheduleTaskReminder} from '../services/notifications';
 import {getTasks, saveTasks} from '../storage/storage';
+import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../theme';
 import {validateTask} from '../utils/validation';
 
@@ -59,7 +60,7 @@ export default function AddTaskScreen({navigation}) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <FormInput
         label="Título de la tarea"
         placeholder="Ej: Estudiar para el parcial"
@@ -102,7 +103,7 @@ export default function AddTaskScreen({navigation}) {
         variant="outline"
         onPress={() => navigation.goBack()}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 

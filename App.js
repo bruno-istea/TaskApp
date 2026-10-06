@@ -1,6 +1,7 @@
 import React from 'react';
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {NavigationContainer} from '@react-navigation/native';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {AuthProvider, useAuth} from './src/context/AuthContext';
 import AddTaskScreen from './src/screens/AddTaskScreen';
@@ -63,11 +64,13 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <NavigationContainer>
-        <RootNavigator />
-      </NavigationContainer>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <NavigationContainer>
+          <RootNavigator />
+        </NavigationContainer>
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 
