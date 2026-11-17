@@ -2,14 +2,14 @@ import React, {useState} from 'react';
 import {Button, StyleSheet, Text, View} from 'react-native';
 import CustomButton from '../components/CustomButton';
 import FormInput from '../components/FormInput';
-import {useAuth} from '../context/AuthContext';
 import {checkCredentials} from '../storage/storage';
+import {useAuthStore} from '../stores/authStore';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../theme';
 import {validateLogin} from '../utils/validation';
 
 export default function LoginScreen({navigation}) {
-  const {login} = useAuth();
+  const login = useAuthStore(s => s.login);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);

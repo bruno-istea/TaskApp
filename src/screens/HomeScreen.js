@@ -1,11 +1,11 @@
-import React, {useCallback, useLayoutEffect, useState} from 'react';
-import {Alert, FlatList, StyleSheet, Text} from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
+import React, {useLayoutEffect} from 'react';
+import {Alert, FlatList, StyleSheet, Text, View} from 'react-native';
 import CustomButton from '../components/CustomButton';
 import TaskItem from '../components/TaskItem';
-import {useAuth} from '../context/AuthContext';
+import {deleteCalendarEvent} from '../services/device';
 import {cancelReminder} from '../services/notifications';
-import {getTasks, saveTasks} from '../storage/storage';
+import {useAuthStore} from '../stores/authStore';
+import {useTaskStore} from '../stores/taskStore';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../theme';
 import {countPending} from '../utils/validation';
@@ -20,8 +20,12 @@ function LogoutButton({onPress}) {
 }
 
 export default function HomeScreen({navigation}) {
-  const {user, logout} = useAuth();
-  const [tasks, setTasks] = useState([]);
+  // Estado global con selectores: sin useState ni props pasadas a mano.
+  const user = useAuthStore(s => s.user);
+  const logout = useAuthStore(s => s.logout);
+  const tasks = useTaskStore(s => s.tasks);
+  const toggleTask = useTaskStore(s => s.toggleTask);
+  const removeTask = useTaskStore(s => s.removeTask);
 
   // Botón "Salir" en el header
   useLayoutEffect(() => {
@@ -30,21 +34,7 @@ export default function HomeScreen({navigation}) {
     });
   }, [navigation, logout]);
 
-  // Recarga las tareas cada vez que la pantalla vuelve a estar visible
-  useFocusEffect(
-    useCallback(() => {
-      getTasks(user).then(setTasks);
-    }, [user]),
-  );
-
-  const updateTasks = async newTasks => {
-    setTasks(newTasks);
-    await saveTasks(user, newTasks);
-  };
-
-  const handleToggle = id => {
-    updateTasks(tasks.map(t => (t.id === id ? {...t, done: !t.done} : t)));
-  };
+  const handleToggle = id => toggleTask(id);
 
   const handleDelete = id => {
     const task = tasks.find(t => t.id === id);
@@ -55,7 +45,8 @@ export default function HomeScreen({navigation}) {
         style: 'destructive',
         onPress: async () => {
           await cancelReminder(task.notificationId);
-          updateTasks(tasks.filter(t => t.id !== id));
+          await deleteCalendarEvent(task.calendarEvent?.id);
+          await removeTask(id);
         },
       },
     ]);
@@ -64,11 +55,18 @@ export default function HomeScreen({navigation}) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <Text style={styles.greeting}>Hola, {user} 👋</Text>
-      <Text style={styles.summary}>
-        {tasks.length === 0
-          ? 'Todavía no tenés tareas.'
-          : `${countPending(tasks)} pendiente(s) de ${tasks.length}`}
-      </Text>
+      <View style={styles.summaryRow}>
+        <Text style={styles.summary}>
+          {tasks.length === 0
+            ? 'Todavía no tenés tareas.'
+            : `${countPending(tasks)} pendiente(s) de ${tasks.length}`}
+        </Text>
+        <Text
+          style={styles.permissions}
+          onPress={() => navigation.navigate('Permissions')}>
+          🔒 Permisos
+        </Text>
+      </View>
 
       <FlatList
         data={tasks}
@@ -78,6 +76,7 @@ export default function HomeScreen({navigation}) {
             task={item}
             onToggle={handleToggle}
             onDelete={handleDelete}
+            onPress={id => navigation.navigate('TaskDetail', {id})}
           />
         )}
         ListEmptyComponent={
@@ -107,11 +106,21 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text,
   },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+    marginBottom: 16,
+  },
   summary: {
     fontSize: 15,
     color: colors.muted,
-    marginTop: 4,
-    marginBottom: 16,
+  },
+  permissions: {
+    color: colors.primary,
+    fontWeight: '600',
+    fontSize: 15,
   },
   list: {
     flexGrow: 1,

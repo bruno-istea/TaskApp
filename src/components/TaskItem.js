@@ -1,14 +1,17 @@
 import React from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {colors} from '../theme';
+import {formatDateTime} from '../utils/format';
 import {formatTime} from '../utils/validation';
 
 /**
  * Ítem de la lista de tareas (componente reutilizable).
  * - Tocar el círculo marca/desmarca la tarea como hecha.
  * - Tocar "Eliminar" borra la tarea.
+ * - Tocar el resto de la tarjeta abre el detalle (onPress, opcional).
+ * - Muestra la foto, el lugar, el responsable y el evento si los tiene.
  */
-export default function TaskItem({task, onToggle, onDelete}) {
+export default function TaskItem({task, onToggle, onDelete, onPress}) {
   return (
     <View style={styles.card}>
       <TouchableOpacity
@@ -19,18 +22,46 @@ export default function TaskItem({task, onToggle, onDelete}) {
         {task.done && <Text style={styles.checkMark}>✓</Text>}
       </TouchableOpacity>
 
-      <View style={styles.info}>
-        <Text style={[styles.title, task.done && styles.titleDone]}>
-          {task.title}
-        </Text>
-        {task.reminderAt ? (
-          <Text style={styles.reminder}>
-            ⏰ Recordatorio: {formatTime(task.reminderAt)}
-          </Text>
-        ) : (
-          <Text style={styles.reminder}>Sin recordatorio</Text>
+      <TouchableOpacity
+        testID="task-open"
+        style={styles.info}
+        disabled={!onPress}
+        onPress={() => onPress?.(task.id)}>
+        {task.photoUri && (
+          <Image
+            testID="task-thumbnail"
+            source={{uri: task.photoUri}}
+            style={styles.thumbnail}
+          />
         )}
-      </View>
+        <View style={styles.texts}>
+          <Text style={[styles.title, task.done && styles.titleDone]}>
+            {task.title}
+          </Text>
+          {task.reminderAt ? (
+            <Text style={styles.reminder}>
+              ⏰ Recordatorio: {formatTime(task.reminderAt)}
+            </Text>
+          ) : (
+            <Text style={styles.reminder}>Sin recordatorio</Text>
+          )}
+          {task.location?.address && (
+            <Text style={styles.reminder} numberOfLines={1}>
+              📍 {task.location.address}
+            </Text>
+          )}
+          {task.contact && (
+            <Text style={styles.reminder} numberOfLines={1}>
+              👤 {task.contact.name}
+            </Text>
+          )}
+          {task.calendarEvent && (
+            <Text style={styles.reminder}>
+              📅 {formatDateTime(task.calendarEvent.startDate)}
+            </Text>
+          )}
+        </View>
+      </TouchableOpacity>
 
       <TouchableOpacity
         testID="task-delete"
@@ -73,6 +104,18 @@ const styles = StyleSheet.create({
   },
   info: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  texts: {
+    flex: 1,
+  },
+  thumbnail: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    marginRight: 10,
+    backgroundColor: colors.border,
   },
   title: {
     fontSize: 16,

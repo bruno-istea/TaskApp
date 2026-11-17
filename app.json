@@ -23,7 +23,35 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "TaskApp usa tus fotos para adjuntar una imagen a cada tarea.",
+          "cameraPermission": "TaskApp usa la cámara para sacar una foto de la tarea.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "TaskApp usa tu ubicación para guardar dónde hay que hacer la tarea.",
+          "isAndroidForegroundServiceEnabled": false,
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ],
+      [
+        "expo-contacts",
+        {
+          "contactsPermission": "TaskApp usa tus contactos para elegir al responsable de la tarea."
+        }
+      ],
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "TaskApp usa tu calendario para agendar las tareas."
+        }
+      ]
     ]
   }
 }

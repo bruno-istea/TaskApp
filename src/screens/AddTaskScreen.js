@@ -1,10 +1,18 @@
 import React, {useState} from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import AttachmentsEditor from '../components/AttachmentsEditor';
 import CustomButton from '../components/CustomButton';
 import FormInput from '../components/FormInput';
-import {useAuth} from '../context/AuthContext';
+import {deleteCalendarEvent} from '../services/device';
 import {scheduleTaskReminder} from '../services/notifications';
-import {getTasks, saveTasks} from '../storage/storage';
+import {useTaskStore} from '../stores/taskStore';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {colors} from '../theme';
 import {validateTask} from '../utils/validation';
@@ -20,8 +28,15 @@ const REMINDER_OPTIONS = [
 ];
 
 export default function AddTaskScreen({navigation}) {
-  const {user} = useAuth();
+  const addTask = useTaskStore(s => s.addTask);
   const [title, setTitle] = useState('');
+  // Foto, ubicación, responsable y evento del calendario (Parcial 2)
+  const [attachments, setAttachments] = useState({
+    photoUri: null,
+    location: null,
+    contact: null,
+    calendarEvent: null,
+  });
   const [reminder, setReminder] = useState(5);
   const [error, setError] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -63,10 +78,10 @@ export default function AddTaskScreen({navigation}) {
         done: false,
         reminderAt,
         notificationId,
+        ...attachments,
       };
 
-      const tasks = await getTasks(user);
-      await saveTasks(user, [newTask, ...tasks]);
+      await addTask(newTask); // store global: guarda y actualiza la lista
       navigation.goBack();
     } catch (e) {
       Alert.alert(
@@ -77,50 +92,69 @@ export default function AddTaskScreen({navigation}) {
     }
   };
 
+  // Si cancela, se borra el evento del calendario que ya se había creado.
+  const handleCancel = async () => {
+    await deleteCalendarEvent(attachments.calendarEvent?.id);
+    navigation.goBack();
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <FormInput
-        label="Título de la tarea"
-        placeholder="Ej: Estudiar para el parcial"
-        value={title}
-        onChangeText={setTitle}
-        autoCapitalize="sentences"
-        maxLength={60}
-      />
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled">
+        <FormInput
+          label="Título de la tarea"
+          placeholder="Ej: Estudiar para el parcial"
+          value={title}
+          onChangeText={setTitle}
+          autoCapitalize="sentences"
+          maxLength={60}
+        />
 
-      <Text style={styles.label}>Recordatorio</Text>
-      <View style={styles.options}>
-        {REMINDER_OPTIONS.map(opt => {
-          const selected = opt.seconds === reminder;
-          return (
-            <TouchableOpacity
-              key={opt.seconds}
-              onPress={() => setReminder(opt.seconds)}
-              style={[styles.chip, selected && styles.chipSelected]}>
-              <Text
-                style={[styles.chipText, selected && styles.chipTextSelected]}>
-                {opt.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-      <Text style={styles.hint}>
-        Vas a recibir una notificación cuando se cumpla el tiempo elegido.
-      </Text>
+        <Text style={styles.label}>Recordatorio</Text>
+        <View style={styles.options}>
+          {REMINDER_OPTIONS.map(opt => {
+            const selected = opt.seconds === reminder;
+            return (
+              <TouchableOpacity
+                key={opt.seconds}
+                onPress={() => setReminder(opt.seconds)}
+                style={[styles.chip, selected && styles.chipSelected]}>
+                <Text
+                  style={[
+                    styles.chipText,
+                    selected && styles.chipTextSelected,
+                  ]}>
+                  {opt.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <Text style={styles.hint}>
+          Vas a recibir una notificación cuando se cumpla el tiempo elegido.
+        </Text>
 
-      {error && <Text style={styles.error}>{error}</Text>}
+        <AttachmentsEditor
+          title={title}
+          value={attachments}
+          onChange={changes => setAttachments(prev => ({...prev, ...changes}))}
+        />
 
-      <CustomButton
-        title={saving ? 'Guardando...' : 'Guardar tarea'}
-        onPress={handleSave}
-        disabled={saving}
-      />
-      <CustomButton
-        title="Cancelar"
-        variant="outline"
-        onPress={() => navigation.goBack()}
-      />
+        {error && <Text style={styles.error}>{error}</Text>}
+
+        <CustomButton
+          title={saving ? 'Guardando...' : 'Guardar tarea'}
+          onPress={handleSave}
+          disabled={saving}
+        />
+        <CustomButton
+          title="Cancelar"
+          variant="outline"
+          onPress={handleCancel}
+        />
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -128,8 +162,10 @@ export default function AddTaskScreen({navigation}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: colors.background,
+  },
+  scroll: {
+    padding: 20,
   },
   label: {
     fontSize: 14,
@@ -166,7 +202,7 @@ const styles = StyleSheet.create({
     color: colors.muted,
     fontSize: 13,
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 16,
   },
   error: {
     color: colors.danger,
