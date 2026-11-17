@@ -72,38 +72,6 @@ Como en los tests no hay un celular, las librerías del dispositivo se simulan c
 
 ---
 
-## 🤖 Punto extra – IA aplicada al desarrollo
-
-### Herramienta utilizada
-
-**Claude (Anthropic)** como asistente de programación, para **generar y refactorizar el código** de la app, configurar los tests y la compilación del APK con GitHub Actions. Mi parte fue definir qué hacer, **probar cada versión en mi celular y en el emulador**, detectar los errores y pasárselos con capturas para corregirlos, y después repasar el código para entenderlo.
-
-### Ejemplos de prompts usados
-
-| Prompt (como lo escribí) | Qué aprendí sobre cómo pedirle a la IA |
-|---|---|
-| *(Pegué la consigna completa del Parcial 1)* | Dar **todo el contexto** sirve, pero me faltó una **restricción clave**: no aclaré que usábamos **Expo**, y la primera versión salió con React Native CLI y otra librería de notificaciones. La tuve que pedir de nuevo con la consigna correcta. |
-| *"Fíjate que la parte donde se agrega la nueva tarea se superpone con los botones táctiles de mi celular"* + **captura de pantalla** | Una **captura del problema real** sirvió más que cualquier descripción: la corrección (`SafeAreaView`) salió a la primera. |
-| *(Captura del error en rojo de Expo Go)* | Pasarle el **mensaje de error exacto** permitió encontrar la causa: Expo Go ya no soporta notificaciones *push*. |
-| *"Dice 'Error No se pudo guardar la tarea'"* | Con un mensaje genérico no alcanzaba. Primero se hizo que la app **mostrara el detalle del error**, y con esa segunda captura se vio que fallaba el **canal de notificaciones**. |
-| *(Pegué la consigna del Parcial 2 y las presentaciones de las Unidades 8, 9 y 10)* | Darle **los apuntes de clase** como ejemplo hizo que el código siga lo que vimos: flujo de permisos de la Unidad 8, `expo-image-picker` de la Unidad 9 y **Zustand con tests de `getState()`** de la Unidad 10. |
-
-**Conclusión:** un buen prompt tiene **contexto** (consigna, apuntes), **restricciones** (Expo, Zustand, que funcione en Expo Go) y **evidencia** (capturas y errores exactos), no solo el pedido.
-
-### Código generado vs. código final
-
-La primera versión que genera la IA no siempre funciona en un celular real. Estas son las diferencias más importantes entre lo generado y lo que quedó en la app:
-
-| Tema | Código generado primero | Código final |
-|---|---|---|
-| Notificaciones en Expo Go | `import * as Notifications from 'expo-notifications'` → en Expo Go para Android **la app no abría** (cargaba también la parte de push). | `src/services/localNotificationsApi.js` importa **solo las funciones locales**. |
-| Canal de notificaciones | Creaba siempre un canal propio → en Expo Go **fallaba al guardar la tarea**. | Si no se puede crear el canal, usa el **canal por defecto** (con su test). |
-| Diseño en Android | Pantallas con `View` → el botón quedaba **tapado por la barra de navegación**. | `SafeAreaView` en todas las pantallas. |
-| Calendario (SDK 57) | La API nueva de `expo-calendar` **no está disponible en Expo Go**. | Se usa `expo-calendar/legacy`, que funciona en Expo Go y en el APK. |
-| Test del calendario | El test esperaba el comportamiento de Android, pero Jest simula iPhone por defecto → **falló**. | Ahora hay un test para cada plataforma. |
-
----
-
 ## Cómo ejecutar la app
 
 ### Opción A – Expo Go
