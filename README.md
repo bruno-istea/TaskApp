@@ -9,7 +9,7 @@ Trabajo práctico individual de React Native – Istea.
 
 ## 🎬 Videos demo
 
-- ▶️ **Parcial 2:** [Ver demo en YouTube](https://youtu.be/REEMPLAZAR_CON_LINK_PARCIAL_2)
+- ▶️ **Parcial 2:** [Ver demo en YouTube](https://youtube.com/shorts/CNVn8t-jHLo)
 - ▶️ Parcial 1: [Ver demo en YouTube](https://youtube.com/shorts/OYGY6Do-X_E)
 
 ---
